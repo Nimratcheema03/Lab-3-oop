@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
-
+#include <sys/wait.h>
 #define MAX_INPUT_SIZE 1024
 #define MAX_TOKEN_SIZE 64
 #define MAX_NUM_TOKENS 64
@@ -57,22 +57,27 @@ int main(int argc, char* argv[]) {
 
 		line[strlen(line)] = '\n'; //terminate with new line
 		tokens = tokenize(line);
-        char *args[] = {"/bin/sh", "-c", "path/to/executable", NULL};
 
        //do whatever you want with the commands, here we just print them
 
 		for(i=0;tokens[i]!=NULL;i++){
 			printf("found token %s (remove this debug output later)\n", tokens[i]);
 		}
-        if (strcmp(tokens[0], "cd") == 0) {
-        // Change the current working directory
-        if (chdir(tokens[1]) != 0) {
-            perror("chdir");
-        }
-        } else {
-            // Execute the command
+        pid_t pid = fork();
+
+        if(pid < 0){
+            printf("Fork failed");
+            return  1;
+        }else if (pid == 0){
             execvp(tokens[0], tokens);
+            printf("Command not found");
+            exit(0);
+        }else{
+            wait(NULL);
+            return 0;
         }
+
+
        
 		// Freeing the allocated memory	
 		for(i=0;tokens[i]!=NULL;i++){
