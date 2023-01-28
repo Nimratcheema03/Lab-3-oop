@@ -72,10 +72,10 @@ int main(int argc, char* argv[]) {
         }else if (pid == 0){
             if(strcmp(tokens[0], "cd") == 0){
                 if(tokens[1] ==NULL){
-                    printf("Please provide directory to enter");
+                    printf("Please provide directory to enter \n");
                 }else{
                     if(chdir(tokens[1])!=0){
-                        printf("Incorrect command to the display and prompting for the next command");
+                        printf("Incorrect command to the display and prompting for the next command\n");
                     }
                 }
             }else {
@@ -85,7 +85,6 @@ int main(int argc, char* argv[]) {
                         printf("Error: Unable to execute command\n");
                         exit(EXIT_FAILURE);
                     }
-
                 } else {
                     if (execvp(tokens[0], tokens) < 0) {
                         printf("Error: Unable to execute command\n");
@@ -95,10 +94,10 @@ int main(int argc, char* argv[]) {
             }
         }else{
             int status;
-            if (strcmp(tokens[length - 1], "&") == 0) {
+
+            if(strcmp(tokens[length-1], "&") == 0) {
                 waitpid(pid, &status, WNOHANG);
-                printf("Shell: Background process finished\n");
-            } else {
+            }  else {
                 waitpid(pid, &status, 0);
             }
         }
