@@ -59,8 +59,9 @@ int main(int argc, char* argv[]) {
 		tokens = tokenize(line);
 
        //do whatever you want with the commands, here we just print them
-
+        int length = 0;
 		for(i=0;tokens[i]!=NULL;i++){
+            length++;
 			printf("found token %s (remove this debug output later)\n", tokens[i]);
 		}
         pid_t pid = fork();
@@ -69,12 +70,37 @@ int main(int argc, char* argv[]) {
             printf("Fork failed");
             return  1;
         }else if (pid == 0){
-            execvp(tokens[0], tokens);
-            printf("Command not found");
-            exit(0);
+            if(strcmp(tokens[0], "cd") == 0){
+                if(tokens[1] ==NULL){
+                    printf("Please provide directory to enter");
+                }else{
+                    if(chdir(tokens[1])!=0){
+                        printf("Incorrect command to the display and prompting for the next command");
+                    }
+                }
+            }else {
+                if (strcmp(tokens[length - 1], "&") == 0) {
+                    tokens[length - 1] = NULL;
+                    if (execvp(tokens[0], tokens) < 0) {
+                        printf("Error: Unable to execute command\n");
+                        exit(EXIT_FAILURE);
+                    }
+
+                } else {
+                    if (execvp(tokens[0], tokens) < 0) {
+                        printf("Error: Unable to execute command\n");
+                        exit(EXIT_FAILURE);
+                    }
+                }
+            }
         }else{
-            wait(NULL);
-            return 0;
+            int status;
+            if (strcmp(tokens[length - 1], "&") == 0) {
+                waitpid(pid, &status, WNOHANG);
+                printf("Shell: Background process finished\n");
+            } else {
+                waitpid(pid, &status, 0);
+            }
         }
 
 
